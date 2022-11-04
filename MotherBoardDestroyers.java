@@ -110,11 +110,11 @@ public class MotherBoardDestroyers extends Robot {
 
         lastbearingFromGun = bearingFromGun;
         fired = true;
-        if (distance < 300 && lastDistance > distance) {
-            this.moveRight = false;
-        } else if (distance > 300) {
-            this.moveRight = true;
-        }
+//        if (distance < 300 && lastDistance > distance) {
+//            this.moveRight = false;
+//        } else if (distance > 300) {
+//            this.moveRight = true;
+//        }
 
         this.lastDistance = distance;
 
