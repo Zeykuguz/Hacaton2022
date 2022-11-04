@@ -24,11 +24,15 @@ public class MotherBoardDestroyers extends Robot
 
 	double lastDistance = 0;
 
+	double lastbearingFromGun = 1;
+
+	boolean allowMove = true;
+
 	public void run() {
-		this.setBodyColor(/*Color.getHSBColor(174.0F, 48.0F, 32.0F)*/ Color.black);
-		this.setGunColor(Color.getHSBColor(68.0F, 72.0F, 100.0F));
-		this.setRadarColor(Color.getHSBColor(174.0F, 48.0F, 32.0F));
-		this.setBulletColor(Color.getHSBColor(68.0F, 72.0F, 100.0F));
+		this.setBodyColor(Color.black);
+		this.setGunColor(Color.black);
+		this.setRadarColor(Color.orange);
+		this.setBulletColor(Color.cyan);
 		this.setScanColor(Color.cyan);
 
 		this.steps = 0;
@@ -45,35 +49,42 @@ public class MotherBoardDestroyers extends Robot
 
 		this.setAdjustGunForRobotTurn(true);
 
-		while (true) {
+		while(true) {
 			this.move();
 		}
 	}
 
 	public void move(){
-		if(!fired) {
+		if (!fired) {
 			turnGunRight(360);
 		}
+		int extraMove = 0;
 
-		if (hasDamage) {
-			turnRight(45);
-			hasDamage = false;
+		if(allowMove) {
+			if (hasDamage) {
+				extraMove += 50;
+				//turnRight(90);
+				hasDamage = false;
+			}
+
+			if (moveRight) {
+				this.ahead(this.stepsToMove + extraMove);
+			} else {
+				this.ahead(-this.stepsToMove - extraMove);
+			}
+			turnGunRight(20);
+			turnGunLeft(40);
 		}
 
-		if(moveRight){
-			this.ahead(this.stepsToMove);
-		}else{
-			this.ahead(-this.stepsToMove);
-		}
-		turnGunRight(20);
-		turnGunLeft(40);
 		fired = false;
+
 	}
 
 	public void onScannedRobot(ScannedRobotEvent e) {
 		// Calculate exact location of the robot
 		double absoluteBearing = getHeading() + e.getBearing();
 		double bearingFromGun = normalRelativeAngleDegrees(absoluteBearing - getGunHeading());
+
 		turnGunRight(bearingFromGun);
 		double distance = e.getDistance();
 
@@ -81,15 +92,24 @@ public class MotherBoardDestroyers extends Robot
 			lastDistance = distance;
 		}
 
-		if(distance < 150) {
+
+		if(lastbearingFromGun == bearingFromGun){
+			allowMove = false;
 			fire(Math.abs(Math.min(5, getEnergy() - .1)));
-		}else if(distance < 300){
-			fire(Math.abs(Math.min(3, getEnergy() - .1)));
-		}else if(distance < 600){
-			fire(Math.abs(Math.min(1, getEnergy() - .1)));
 		}else {
-			fire(Math.abs(Math.min(0.1, getEnergy() - .1)));
+			if (distance < 300) {
+				fire(Math.abs(Math.min(2, getEnergy() - .1)));
+			} else if (distance < 450) {
+				fire(Math.abs(Math.min(1, getEnergy() - .1)));
+			} else if (distance < 600) {
+				fire(Math.abs(Math.min(0.5, getEnergy() - .1)));
+			} else {
+				fire(Math.abs(Math.min(0.25, getEnergy() - .1)));
+			}
+			allowMove = true;
 		}
+
+		lastbearingFromGun = bearingFromGun;
 		fired = true;
 		if(distance < 300 && lastDistance > distance ){
 			this.moveRight = false;
@@ -101,6 +121,7 @@ public class MotherBoardDestroyers extends Robot
 
 		this.move();
 	}
+
 
 	/**
 	 * onHitByBullet: What to do when you're hit by a bullet
@@ -114,7 +135,7 @@ public class MotherBoardDestroyers extends Robot
 	 */
 	public void onHitWall(HitWallEvent e) {
 		this.steps = 0;
-		this.turnRight(45.0D);
+		this.turnRight(90.0D);
 	}
 
 	public void onWin(WinEvent e) {
