@@ -1,7 +1,6 @@
 package motherboarddest;
 
 import robocode.*;
-import robocode.*;
 import robocode.Robot;
 
 import java.awt.*;
@@ -15,7 +14,7 @@ public class MotherBoardDestroyers extends Robot {
     double bfHeight;
     double bfWidth;
 
-    final int stepsToMove = 50;
+    final int stepsToMove = 100;
 
     boolean hasDamage = false;
 
@@ -30,7 +29,7 @@ public class MotherBoardDestroyers extends Robot {
 
     public void run() {
         this.setBodyColor(Color.black);
-        this.setGunColor(Color.black);
+        this.setGunColor(Color.orange);
         this.setRadarColor(Color.orange);
         this.setBulletColor(Color.cyan);
         this.setScanColor(Color.cyan);
@@ -76,7 +75,6 @@ public class MotherBoardDestroyers extends Robot {
         }
 
         fired = false;
-
     }
 
     public void onScannedRobot(ScannedRobotEvent e) {
@@ -91,13 +89,12 @@ public class MotherBoardDestroyers extends Robot {
             lastDistance = distance;
         }
 
-
         if (lastbearingFromGun == bearingFromGun) {
             allowMove = false;
             fire(Math.abs(Math.min(5, getEnergy() - .1)));
         } else {
             if (distance < 300 ) {
-                fire(Math.abs(Math.min(2, getEnergy() - .1)));
+                fire(Math.abs(Math.min(3, getEnergy() - .1)));
             } else if (distance < 450) {
                 fire(Math.abs(Math.min(1, getEnergy() - .1)));
             } else if (distance < 600) {
@@ -117,21 +114,13 @@ public class MotherBoardDestroyers extends Robot {
 //        }
 
         this.lastDistance = distance;
-
         this.move();
     }
 
-
-    /**
-     * onHitByBullet: What to do when you're hit by a bullet
-     */
     public void onHitByBullet(HitByBulletEvent e) {
         hasDamage = true;
     }
 
-    /**
-     * onHitWall: What to do when you hit a wall
-     */
     public void onHitWall(HitWallEvent e) {
         this.steps = 0;
         this.turnRight(90.0D);
